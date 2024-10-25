@@ -174,7 +174,5 @@ export function mergeQuestion(
     newQuestion.name = name;
     newQuestion.points = points;
     newQuestion.published = false;
-    console.log(contentQuestion);
-    console.log(newQuestion);
     return newQuestion;
 }
