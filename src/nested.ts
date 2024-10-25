@@ -1,12 +1,16 @@
 import { Answer } from "./interfaces/answer";
 import { Question, QuestionType } from "./interfaces/question";
+import { makeBlankQuestion } from "./objects";
 
 /**
  * Consumes an array of questions and returns a new array with only the questions
  * that are `published`.
  */
 export function getPublishedQuestions(questions: Question[]): Question[] {
-    return [];
+    let publishedQuestions = questions.filter(
+        (question: Question): boolean => question.published,
+    );
+    return publishedQuestions;
 }
 
 /**
@@ -15,7 +19,15 @@ export function getPublishedQuestions(questions: Question[]): Question[] {
  * `expected`, and an empty array for its `options`.
  */
 export function getNonEmptyQuestions(questions: Question[]): Question[] {
-    return [];
+    let nonEmptyQuestions = questions.filter(
+        (question: Question): boolean =>
+            !(
+                question.body == "" &&
+                question.expected == "" &&
+                question.options.length == 0
+            ),
+    );
+    return nonEmptyQuestions;
 }
 
 /***
@@ -24,8 +36,24 @@ export function getNonEmptyQuestions(questions: Question[]): Question[] {
  */
 export function findQuestion(
     questions: Question[],
-    id: number
+    id: number,
 ): Question | null {
+    let findQuestion = questions.filter(
+        (question: Question): boolean => question.id == id,
+    );
+    if (findQuestion.length > 0) {
+        let requestedQuestion = {
+            id: findQuestion[0].id,
+            name: findQuestion[0].name,
+            type: findQuestion[0].type,
+            points: findQuestion[0].points,
+            body: findQuestion[0].body,
+            expected: findQuestion[0].expected,
+            options: [...findQuestion[0].options],
+            published: findQuestion[0].published,
+        };
+        return requestedQuestion;
+    }
     return null;
 }
 
@@ -35,7 +63,10 @@ export function findQuestion(
  * Hint: use filter
  */
 export function removeQuestion(questions: Question[], id: number): Question[] {
-    return [];
+    let notIdQuestion = questions.filter(
+        (question: Question): boolean => !(question.id == id),
+    );
+    return notIdQuestion;
 }
 
 /***
@@ -44,7 +75,10 @@ export function removeQuestion(questions: Question[], id: number): Question[] {
  * Do not modify the input array.
  */
 export function getNames(questions: Question[]): string[] {
-    return [];
+    let nameArray = questions.map(
+        (question: Question): string => question.name,
+    );
+    return nameArray;
 }
 
 /**
@@ -53,7 +87,17 @@ export function getNames(questions: Question[]): string[] {
  * making the `text` an empty string, and using false for both `submitted` and `correct`.
  */
 export function makeAnswers(questions: Question[]): Answer[] {
-    return [];
+    let answerArray = [] as Answer[];
+    questions.forEach((question) => {
+        let newAnswer = {
+            questionId: question.id,
+            correct: false,
+            text: "",
+            submitted: false,
+        };
+        answerArray.push(newAnswer);
+    });
+    return answerArray;
 }
 
 /***
@@ -62,7 +106,13 @@ export function makeAnswers(questions: Question[]): Answer[] {
  * Hint: as usual, do not modify the input questions array
  */
 export function publishAll(questions: Question[]): Question[] {
-    return [];
+    let publishQuestions = questions.map(
+        (question: Question): Question => ({
+            ...question,
+            published: true,
+        }),
+    );
+    return publishQuestions;
 }
 
 /***
@@ -75,24 +125,37 @@ export function addNewQuestion(
     questions: Question[],
     id: number,
     name: string,
-    type: QuestionType
+    type: QuestionType,
 ): Question[] {
-    return [];
+    let newQuestionAdded = questions.map(
+        (question: Question): Question => ({ ...question }),
+    );
+    let newQuestion = makeBlankQuestion(id, name, type);
+    newQuestionAdded.push(newQuestion);
+    return newQuestionAdded;
 }
 
 /***
  * Consumes an array of Questions and produces a new array of Questions, where all
  * the Questions are the same EXCEPT for the one with the given `targetId`. That
  * Question should be the same EXCEPT that its name should now be `newName`.
- * Hint: as usual, do not modify the input questions array, 
+ * Hint: as usual, do not modify the input questions array,
  *       to make a new copy of a question with some changes, use the ... operator
  */
 export function renameQuestionById(
     questions: Question[],
     targetId: number,
-    newName: string
+    newName: string,
 ): Question[] {
-    return [];
+    let renameQuestions = questions.map(
+        (question: Question): Question => ({ ...question }),
+    );
+    renameQuestions.forEach((question) => {
+        if (question.id == targetId) {
+            question.name = newName;
+        }
+    });
+    return renameQuestions;
 }
 
 /**
@@ -104,14 +167,27 @@ export function renameQuestionById(
  *
  * Remember, if a function starts getting too complicated, think about how a helper function
  * can make it simpler! Break down complicated tasks into little pieces.
- * 
+ *
  * Hint: you need to use the ... operator for both the question and the options array
  */
 export function editOption(
     questions: Question[],
     targetId: number,
     targetOptionIndex: number,
-    newOption: string
+    newOption: string,
 ): Question[] {
-    return [];
+    let editQuestionOption = questions.map(
+        (question: Question): Question => ({ ...question }),
+    );
+    editQuestionOption.forEach((question) => {
+        if (question.id == targetId) {
+            question.options = [...question.options];
+            if (targetOptionIndex == -1) {
+                question.options.push(newOption);
+            } else {
+                question.options[targetOptionIndex] = newOption;
+            }
+        }
+    });
+    return editQuestionOption;
 }
